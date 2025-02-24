@@ -447,3 +447,131 @@ $ ./iiitb_rv32i
 
 </details>
 
+<details>
+<summary><b>Task 5:</b></summary>
+<br>
+# Full Subtractor Implementation on VSDSquadron Mini
+
+## Overview
+This project demonstrates the implementation of a **Full Subtractor** combinational circuit using the **VSDSquadron Mini**, a RISC-V-based SoC development kit. A Full Subtractor is a crucial component in digital electronics, enabling binary subtraction operations.
+
+## Components Required
+- **VSDSquadron Mini Board**
+- **Push Buttons**
+- **2 LEDs**
+- **Breadboard**
+- **Jumper Wires**
+- **VS Code, PlatformIO**
+
+## Logical Diagram and Expressions
+
+```math
+D = (A \oplus B) \oplus Bin
+Bout = A'Bin + A'B + BBin
+```
+
+## Hardware Connections
+
+| **VSDSquadron Mini Board** | **Hardware Connections** |
+|----------------------------|-------------------------|
+| GND                        | LED1 anode, LED2 anode, Switch(1,2,3) anode |
+| PD1                        | Switch 1 cathode (A) |
+| PD2                        | Switch 2 cathode (B) |
+| PD3                        | Switch 3 cathode (Bin) |
+| PC4                        | Red LED (Borrow) |
+| PC5                        | Green LED (Difference) |
+
+## Truth Table
+
+| A | B | Bin | Difference (D) | Borrow (Bout) |
+|---|---|-----|---------------|--------------|
+| 0 | 0 | 0   | 0             | 0            |
+| 0 | 0 | 1   | 1             | 1            |
+| 0 | 1 | 0   | 1             | 1            |
+| 0 | 1 | 1   | 0             | 1            |
+| 1 | 0 | 0   | 1             | 0            |
+| 1 | 0 | 1   | 0             | 0            |
+| 1 | 1 | 0   | 0             | 0            |
+| 1 | 1 | 1   | 1             | 1            |
+
+## Program
+
+```c
+// Full Subtractor Implementation
+
+#include <stdio.h>
+#include <debug.h>
+#include <ch32v00x.h>
+
+// Logic Gate Functions
+int and(int bit1, int bit2) {
+    return bit1 & bit2;
+}
+
+int or(int bit1, int bit2) {
+    return bit1 | bit2;
+}
+
+int xor(int bit1, int bit2) {
+    return bit1 ^ bit2;
+}
+
+int not(int bit) {
+    return ~bit & 1; // Ensuring only the least significant bit is considered
+}
+
+// GPIO Configuration
+void GPIO_Config(void) {
+    GPIO_InitTypeDef GPIO_InitStructure = {0}; 
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; // Input with pull-up
+    GPIO_Init(GPIOD, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
+}
+
+// Main function
+int main() {
+    uint8_t A, B, Bin, Diff, Bout; 
+    uint8_t p, q, r; 
+
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+    SystemCoreClockUpdate();
+    Delay_Init();
+    GPIO_Config();
+
+    while (1) {
+        A = GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_1);
+        B = GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_2);
+        Bin = GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_3);
+
+        Diff = xor(xor(A, B), Bin);
+        p = and(not(A), B);
+        q = and(B, Bin);
+        r = and(not(A), Bin);
+        Bout = or(or(p, q), r);
+
+        GPIO_WriteBit(GPIOC, GPIO_Pin_4, Diff ? RESET : SET);
+        GPIO_WriteBit(GPIOC, GPIO_Pin_5, Bout ? RESET : SET);
+    }
+}
+```
+
+## Steps to Run
+1. Connect the VSDSquadron Mini board to your system.
+2. Open the project in **VS Code with PlatformIO**.
+3. Compile and upload the code to the board.
+4. Use push buttons to simulate binary inputs.
+5. Observe the LED outputs for Difference and Borrow.
+6. 
+</details>
+
+
+
