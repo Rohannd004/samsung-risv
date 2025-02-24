@@ -470,6 +470,10 @@ D = (A \oplus B) \oplus Bin
 Bout = A'Bin + A'B + BBin
 ```
 
+## Pin Diagram
+
+![Full-Subtractor](https://github.com/user-attachments/assets/484db322-de78-4b1f-a06a-5573fbf7259d)
+
 ## Hardware Connections
 
 | **VSDSquadron Mini Board** | **Hardware Connections** |
@@ -570,7 +574,6 @@ int main() {
 3. Compile and upload the code to the board.
 4. Use push buttons to simulate binary inputs.
 5. Observe the LED outputs for Difference and Borrow.
-6. 
 </details>
 
 
